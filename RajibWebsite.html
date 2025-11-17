@@ -1,0 +1,60 @@
+<style>
+#profilePhoto {
+    width: 150px;
+    border-radius: 50%;
+    margin-bottom: 10px;
+    cursor: move;
+    position: relative;
+    display: inline-block;
+}
+
+/* Resize handle */
+#profilePhoto.resizable {
+    resize: both;
+    overflow: hidden;
+}
+</style>
+
+<script>
+// Make photo draggable
+profileImg.onmousedown = function(event) {
+  event.preventDefault();
+  let shiftX = event.clientX - profileImg.getBoundingClientRect().left;
+  let shiftY = event.clientY - profileImg.getBoundingClientRect().top;
+
+  profileImg.style.position = 'absolute';
+  profileImg.style.zIndex = 1000;
+  document.body.append(profileImg);
+
+  function moveAt(pageX, pageY) {
+    profileImg.style.left = pageX - shiftX + 'px';
+    profileImg.style.top = pageY - shiftY + 'px';
+  }
+
+  moveAt(event.pageX, event.pageY);
+
+  function onMouseMove(event) {
+    moveAt(event.pageX, event.pageY);
+  }
+
+  document.addEventListener('mousemove', onMouseMove);
+
+  profileImg.onmouseup = function() {
+    document.removeEventListener('mousemove', onMouseMove);
+    profileImg.onmouseup = null;
+    // Save position
+    localStorage.setItem("profilePhotoPos", JSON.stringify({left: profileImg.style.left, top: profileImg.style.top}));
+  };
+};
+
+profileImg.ondragstart = function() {
+  return false;
+};
+
+// Load saved position
+window.onload = () => {
+  const pos = JSON.parse(localStorage.getItem("profilePhotoPos") || "{}");
+  if(pos.left) profileImg.style.left = pos.left;
+  if(pos.top) profileImg.style.top = pos.top;
+};
+</script>
